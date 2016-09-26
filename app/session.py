@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 from config import DefaultConfig
 
 master = create_engine(DefaultConfig.MASTER_DATABASE_URI, echo=True)
 slave = create_engine(DefaultConfig.SLAVE_DATABASE_URI, echo=True)
 
-Session = sessionmaker(bind=master)
+session = scoped_session(sessionmaker(bind=master))
 
 
 def with_slave(func):
@@ -16,7 +16,7 @@ def with_slave(func):
 
     def wrapper(*args, **kwargs):
 
-        s = Session()
+        s = session
         oldbind = s.bind
         s.bind = slave
 
